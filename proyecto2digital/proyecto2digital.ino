@@ -20,8 +20,8 @@ Servo myservo4;
 
 //Pines para aumentar modos
 
-#define mas 2
-#define menos 4
+#define bmas 2
+#define bmenos 4
 
 int sumas;
 
@@ -53,11 +53,6 @@ void setup() {
 
   //Configurar el pin del switch de modos
   pinMode(smodos, INPUT_PULLUP);
-
-
-  //Configurar los pines de los switches de set de movimientos
-  pinMode(mas, INPUT_PULLUP);
-  pinMode(menos, INPUT_PULLUP);
 
   // Asignación del pin del servo
   myservo1.attach(9);
@@ -111,6 +106,10 @@ void loop() {
       //Toda la progra del modo automatico
       int estado = 0;
 
+        //Configurar los pines de los switches de set de movimientos
+      bool mas = digitalRead(bmas);
+      bool menos = digitalRead(bmenos);
+      
       //Esatructura para leer botones de mas y menos
       if (mas == HIGH && menos == LOW) {
         if (sumas > 4) {
@@ -135,7 +134,7 @@ void loop() {
       }
 
       Serial.println(sumas, DEC);
-      //Serial.println (2);
+      Serial.println (2);
     }
 
 
