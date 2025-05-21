@@ -16,7 +16,7 @@ Servo myservo4;
 
 //Pin de switch de modos
 
-#define smodos 4
+#define smodos 11
 
 // Definir el pin del potenciometro
 #define Poten1 A1
@@ -64,36 +64,40 @@ void loop() {
 // Estructura de botones para cambio de modo
 
     if (smod == LOW) {
-        //Toda la progra de modo manual
-          // Leer analogicamente el valor del potenciometro
-  Potr1 = analogRead(Poten1);
-  Potr2 = analogRead(Poten2);
-  Potr3 = analogRead(Poten3);
-  Potr4 = analogRead(Poten4);
+      //Toda la progra de modo manual
 
-  // Mapear la lectura del potenciometro a el valor de los grados del servo
-  Servow1 = map(Potr1, 0, 1023, 0, 180);
-  Servow2 = map(Potr2, 0, 1023, 0, 180);
-  Servow3 = map(Potr3, 0, 1023, 0, 180);
-  Servow4 = map(Potr4, 0, 1023, 90, 180);
+      // Leer analogicamente el valor del potenciometro
+      Potr1 = analogRead(Poten1);
+      Potr2 = analogRead(Poten2);
+      Potr3 = analogRead(Poten3);
+      Potr4 = analogRead(Poten4);
 
-  // Imprimir el valor del potenciometro en el monitor cereal
-  Serial.println(Servow1);
-  Serial.println(Servow2);
-  Serial.println(Servow3);
-  Serial.println(Servow4);
-  
-  // Enviar los valores de la seal de la salida al servo.
-  myservo1.write(Servow1);
-  myservo2.write(Servow2);
-  myservo3.write(Servow3);
-  myservo4.write(Servow4);
+      // Mapear la lectura del potenciometro a el valor de los grados del servo
+      Servow1 = map(Potr1, 0, 1023, 0, 180);
+      Servow2 = map(Potr2, 0, 1023, 0, 180);
+      Servow3 = map(Potr3, 0, 1023, 0, 180);
+      Servow4 = map(Potr4, 0, 1023, 90, 180);
+
+      // Imprimir el valor del potenciometro en el monitor cereal
+      //Serial.println(Servow1);
+      //Serial.println(Servow2);
+      //Serial.println(Servow3);
+      //Serial.println(Servow4);
+      
+      // Enviar los valores de la seal de la salida al servo.
+      myservo1.write(Servow1);
+      myservo2.write(Servow2);
+      myservo3.write(Servow3);
+      myservo4.write(Servow4);
+
+      Serial.println (1);
 
 
     }
 
     else if (smod == HIGH) {
       //Toda la progra del modo automatico
+      Serial.println (2);
     }
 
 
