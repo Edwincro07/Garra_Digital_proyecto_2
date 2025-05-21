@@ -65,16 +65,7 @@ void loop() {
 
     if (smod == LOW) {
         //Toda la progra de modo manual
-        
-
-    }
-
-    else if (smod == HIGH) {
-      //Toda la progra del modo automatico
-    }
-
-
-  // Leer analogicamente el valor del potenciometro
+          // Leer analogicamente el valor del potenciometro
   Potr1 = analogRead(Poten1);
   Potr2 = analogRead(Poten2);
   Potr3 = analogRead(Poten3);
@@ -97,5 +88,13 @@ void loop() {
   myservo2.write(Servow2);
   myservo3.write(Servow3);
   myservo4.write(Servow4);
+
+
+    }
+
+    else if (smod == HIGH) {
+      //Toda la progra del modo automatico
+    }
+
 
 }
