@@ -18,6 +18,13 @@ Servo myservo4;
 
 #define smodos 11
 
+//Pines para aumentar modos
+
+#define mas 2
+#define menos 4
+
+int sumas;
+
 // Definir el pin del potenciometro
 #define Poten1 A1
 #define Poten2 A2
@@ -38,12 +45,19 @@ int Servow4;
 
 void setup() {
 
+  sumas = 0;
+
   //Configurar la velocidad de comunicación entre el arduino y la pc
   Serial.begin(9600);
 
 
   //Configurar el pin del switch de modos
   pinMode(smodos, INPUT_PULLUP);
+
+
+  //Configurar los pines de los switches de set de movimientos
+  pinMode(mas, INPUT_PULLUP);
+  pinMode(menos, INPUT_PULLUP);
 
   // Asignación del pin del servo
   myservo1.attach(9);
@@ -54,7 +68,6 @@ void setup() {
 }
 
 //Variable para switch case de movimientos
-int estado = 0;
 
 void loop() {
 
@@ -92,12 +105,37 @@ void loop() {
 
       Serial.println (1);
 
-
     }
 
     else if (smod == HIGH) {
       //Toda la progra del modo automatico
-      Serial.println (2);
+      int estado = 0;
+
+      //Esatructura para leer botones de mas y menos
+      if (mas == HIGH && menos == LOW) {
+        if (sumas > 4) {
+          sumas = 5;
+        }
+
+        else if (sumas < 6) {
+          sumas += 1;
+          while (digitalRead(mas) == HIGH);
+        } 
+      }
+
+      else if (menos == HIGH && mas == LOW) {
+        if (sumas < 0) {
+          sumas = 0;
+        }
+      
+        else if (sumas > 0) {
+          sumas -= 1;  
+          while (digitalRead(menos) == HIGH);
+        }
+      }
+
+      Serial.println(sumas, DEC);
+      //Serial.println (2);
     }
 
 
