@@ -1,141 +1,172 @@
-//#include <LiquidCrystal.h>
-
-// Incluir la libreria de servo
 #include <Servo.h>
-#include <Wire.h>
-//#include <LiquidCrystal_I2C.h>
 
-// Objeto liquid crystal
-//LiquidCrystal_I2C lcd(0x3F, 16, 2); 
-
-//Crear objeto con nombre que se le asignara al servo
+// Objetos servo
 Servo myservo1;
 Servo myservo2;
 Servo myservo3;
 Servo myservo4;
 
-//Pin de switch de modos
 
+unsigned long lastPrintTime = 0;
+const unsigned long printInterval = 500;  // Intervalo de 500 ms
+
+// Pines
 #define smodos 11
-
-//Pines para aumentar modos
-
 #define bmas 2
 #define bmenos 4
 
-int sumas;
+#define ledmod1 8
+#define ledmod2 7
 
-// Definir el pin del potenciometro
 #define Poten1 A1
 #define Poten2 A2
 #define Poten3 A3
 #define Poten4 A4
 
-// Crear una variable para el potenciometro que inicie la lectura en 0
-int Potr1 = 0;
-int Potr2 = 0;
-int Potr3 = 0;
-int Potr4 = 0;
+// Variables de lectura y señal para servos
+int Potr1 = 0, Potr2 = 0, Potr3 = 0, Potr4 = 0;
+int Servow1, Servow2, Servow3, Servow4;
 
-// Crear una variable para el valor de señal que se le dara al servo
-int Servow1;
-int Servow2;
-int Servow3;
-int Servow4;
+// Contador de modos
+int sumas = 0;
+
+// Variables para antirebote con millis
+unsigned long lastDebounceTimeMas = 0;
+unsigned long lastDebounceTimeMenos = 0;
+const unsigned long debounceDelay = 200;
 
 void setup() {
-
-  sumas = 0;
-
-  //Configurar la velocidad de comunicación entre el arduino y la pc
   Serial.begin(9600);
 
-
-  //Configurar el pin del switch de modos
   pinMode(smodos, INPUT_PULLUP);
+  pinMode(bmas, INPUT_PULLUP);
+  pinMode(bmenos, INPUT_PULLUP);
 
-  // Asignación del pin del servo
   myservo1.attach(9);
   myservo2.attach(6);
   myservo3.attach(5);
   myservo4.attach(3);
-
 }
 
-//Variable para switch case de movimientos
-
 void loop() {
+  bool smod = digitalRead(smodos); // LOW = modo manual
 
-//Leer switch de modos
-  bool smod = digitalRead(smodos);
+  pinMode(ledmod1, OUTPUT);
+  pinMode(ledmod2, OUTPUT);
 
-// Estructura de botones para cambio de modo
+  if (smod == LOW) {
+    // Modo manual
+    Potr1 = analogRead(Poten1);
+    Potr2 = analogRead(Poten2);
+    Potr3 = analogRead(Poten3);
+    Potr4 = analogRead(Poten4);
 
-    if (smod == LOW) {
-      //Toda la progra de modo manual
+    Servow1 = map(Potr1, 0, 1023, 0, 180);
+    Servow2 = map(Potr2, 0, 1023, 0, 180);
+    Servow3 = map(Potr3, 0, 1023, 45, 90);
+    Servow4 = map(Potr4, 0, 1023, 90, 180);
 
-      // Leer analogicamente el valor del potenciometro
-      Potr1 = analogRead(Poten1);
-      Potr2 = analogRead(Poten2);
-      Potr3 = analogRead(Poten3);
-      Potr4 = analogRead(Poten4);
+    myservo1.write(Servow1);
+    myservo2.write(Servow2);
+    myservo3.write(Servow3);
+    myservo4.write(Servow4);
 
-      // Mapear la lectura del potenciometro a el valor de los grados del servo
-      Servow1 = map(Potr1, 0, 1023, 0, 180);
-      Servow2 = map(Potr2, 0, 1023, 0, 180);
-      Servow3 = map(Potr3, 0, 1023, 0, 180);
-      Servow4 = map(Potr4, 0, 1023, 90, 180);
+    digitalWrite(ledmod1, HIGH);
+    digitalWrite(ledmod2, LOW);
 
-      // Imprimir el valor del potenciometro en el monitor cereal
-      //Serial.println(Servow1);
-      //Serial.println(Servow2);
-      //Serial.println(Servow3);
-      //Serial.println(Servow4);
-      
-      // Enviar los valores de la seal de la salida al servo.
-      myservo1.write(Servow1);
-      myservo2.write(Servow2);
-      myservo3.write(Servow3);
-      myservo4.write(Servow4);
+      unsigned long currentMillis = millis();
+      if (currentMillis - lastPrintTime >= printInterval) {
+        lastPrintTime = currentMillis;
 
-      Serial.println (1);
-
-    }
-
-    else if (smod == HIGH) {
-      //Toda la progra del modo automatico
-      int estado = 0;
-
-        //Configurar los pines de los switches de set de movimientos
-      bool mas = digitalRead(bmas);
-      bool menos = digitalRead(bmenos);
-      
-      //Esatructura para leer botones de mas y menos
-      if (mas == HIGH && menos == LOW) {
-        if (sumas > 4) {
-          sumas = 5;
-        }
-
-        else if (sumas < 6) {
-          sumas += 1;
-          while (digitalRead(mas) == HIGH);
-        } 
+        Serial.println("Modo Manual:");
+        Serial.print("S1: ");
+        Serial.println(Servow1);
+        Serial.print("S2: ");
+        Serial.println(Servow2);
+        Serial.print("S3: ");
+        Serial.println(Servow3);
+        Serial.print("S4: ");
+        Serial.println(Servow4);
       }
 
-      else if (menos == HIGH && mas == LOW) {
-        if (sumas < 0) {
-          sumas = 0;
-        }
-      
-        else if (sumas > 0) {
-          sumas -= 1;  
-          while (digitalRead(menos) == HIGH);
-        }
-      }
+  } else {
+    // Modo automático
+    unsigned long currentMillis = millis();
 
-      Serial.println(sumas, DEC);
-      Serial.println (2);
+    bool mas = digitalRead(bmas) == LOW;
+    bool menos = digitalRead(bmenos) == LOW;
+
+    // Botón MAS
+    if (mas && (currentMillis - lastDebounceTimeMas > debounceDelay)) {
+      if (sumas < 5) {
+        sumas++;
+        Serial.println("++");
+      }
+      lastDebounceTimeMas = currentMillis;
     }
+
+    // Botón MENOS
+    if (menos && (currentMillis - lastDebounceTimeMenos > debounceDelay)) {
+      if (sumas > 0) {
+        sumas--;
+        Serial.println("--");
+      }
+      lastDebounceTimeMenos = currentMillis;
+    }
+
+    if (currentMillis - lastPrintTime >= printInterval) {
+      lastPrintTime = currentMillis;
+
+      digitalWrite(ledmod2, HIGH);
+      digitalWrite(ledmod1, LOW);
+
+      Serial.print("Set: ");
+      Serial.println(sumas);
+    }
+
+    switch (sumas) {
+      case 0:
+        myservo1.write(90);
+        myservo2.write(90);
+        myservo3.write(45);
+        myservo4.write(90);
+        break;
+      case 1:
+        myservo1.write(180);
+        myservo2.write(30);
+        myservo3.write(88);
+        myservo4.write(145);
+        break;
+      case 2:
+        myservo1.write(50);
+        myservo2.write(30);
+        myservo3.write(45);
+        myservo4.write(92);
+        break;
+      case 3:
+        myservo1.write(180);
+        myservo2.write(90);
+        myservo3.write(88);
+        myservo4.write(90);
+        break;
+      case 4:
+        myservo1.write(10);
+        myservo2.write(180);
+        myservo3.write(45);
+        myservo4.write(180);
+        break;
+      case 5:
+        myservo1.write(180);
+        myservo2.write(90);
+        myservo3.write(88);
+        myservo4.write(90);
+        break;
+      default:
+        // statements
+        break;
+    }
+
+  }
 
 
 }
